@@ -1,4 +1,4 @@
-The learning objectives of this project 0x01-react_intro include 
+The project 0x01-react_intro contains tasks 0 - 12 and the  learning objectives include:
 How to create a basic Javascript application using React
 How to use the package create-react-app to start developing quickly with React
 What JSX is and how to use it
