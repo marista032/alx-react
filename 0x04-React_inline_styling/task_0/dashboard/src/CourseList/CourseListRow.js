@@ -1,49 +1,41 @@
 import React from "react";
-// import { ReactProps } from "react";
-import Props from 'prop-types';
+import PropTypes from "prop-types";
 
-export default function CourseListRow ({ isHeader = false, textFirstCell, textSecondCell = null }) {
-    if (isHeader) {
-        if (textSecondCell === null) {
-          return (
-            <tr>
-              <th colSpan={2}>{textFirstCell}</th>
-            </tr>
-          );
-        } else {
-          return (
-            <tr>
-              <th>{textFirstCell}</th>
-              <th>{textSecondCell}</th>
-            </tr>
-          );
-        }
-      } else {
-        return (
-          <tr>
-            <td>{textFirstCell}</td>
-            <td>{textSecondCell}</td>
-          </tr>
-        );
-      }
-    };
-    
-    CourseListRow.Props = {
-      isHeader: Props.bool,
-      textFirstCell: Props.string.isRequired,
-      textSecondCell: Props.string,
-    };
+function CourseListRow({ isHeader, textFirstCell, textSecondCell }) {
+  const headerStyle = { backgroundColor: "#deb5b545" };
+  const rowStyle = { backgroundColor: "#f5f5f5ab" };
+  const selectedStyle = isHeader ? headerStyle : rowStyle;
 
-    CourseListRow.Props = {
-      isHeader: Props.bool,
-      textFirstCell: Props.string.isRequired,
-      textSecondCell: Props.oneOfType([
-          Props.string,
-          Props.number,
-      ]).isRequired,
-  };
-  
-  CourseListRow.defaultProps = {
-      isHeader: false,
-      textSecondCell: null,
-  };
+  return (
+    <tr style={selectedStyle}>
+      {isHeader ? (
+        textSecondCell === null ? (
+          <th colSpan="2">{textFirstCell}</th>
+        ) : (
+          <>
+            <th>{textFirstCell}</th>
+            <th>{textSecondCell}</th>
+          </>
+        )
+      ) : (
+        <>
+          <td>{textFirstCell}</td>
+          <td>{textSecondCell}</td>
+        </>
+      )}
+    </tr>
+  );
+}
+
+CourseListRow.defaultProps = {
+  isHeader: false,
+  textSecondCell: null,
+};
+
+CourseListRow.propTypes = {
+  isHeader: PropTypes.bool,
+  textFirstCell: PropTypes.string,
+  textSecondCell: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
+
+export default CourseListRow;
