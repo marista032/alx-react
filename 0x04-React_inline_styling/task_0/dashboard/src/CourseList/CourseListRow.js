@@ -1,49 +1,32 @@
-import React from "react";
-// import { ReactProps } from "react";
-import Props from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 
-export default function CourseListRow ({ isHeader = false, textFirstCell, textSecondCell = null }) {
-    if (isHeader) {
-        if (textSecondCell === null) {
-          return (
-            <tr>
-              <th colSpan={2}>{textFirstCell}</th>
-            </tr>
-          );
-        } else {
-          return (
-            <tr>
-              <th>{textFirstCell}</th>
-              <th>{textSecondCell}</th>
-            </tr>
-          );
-        }
-      } else {
-        return (
-          <tr>
-            <td>{textFirstCell}</td>
-            <td>{textSecondCell}</td>
-          </tr>
-        );
-      }
-    };
-    
-    CourseListRow.Props = {
-      isHeader: Props.bool,
-      textFirstCell: Props.string.isRequired,
-      textSecondCell: Props.string,
-    };
+const CourseListRow = ({ isHeader, textFirstCell, textSecondCell }) => {
+  const tdClass = isHeader ? 'th' : 'td';
+  const tdColspan = isHeader && textSecondCell === null ? 2 : 1;
 
-    CourseListRow.Props = {
-      isHeader: Props.bool,
-      textFirstCell: Props.string.isRequired,
-      textSecondCell: Props.oneOfType([
-          Props.string,
-          Props.number,
-      ]).isRequired,
+  const trStyle = {
+    backgroundColor: isHeader ? '#deb5b545' : '#f5f5f5ab',
   };
   
-  CourseListRow.defaultProps = {
-      isHeader: false,
-      textSecondCell: null,
-  };
+  return (
+    <tr style={trStyle}>
+      <td className={tdClass} colSpan={tdColspan}>
+        {textFirstCell}
+      </td>
+      {textSecondCell !== null && (
+        <td className={tdClass}>
+          {textSecondCell}
+        </td>
+      )}
+    </tr>
+  );
+};
+
+CourseListRow.propTypes = {
+  isHeader: PropTypes.bool,
+  textFirstCell: PropTypes.string.isRequired,
+  textSecondCell: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
+
+export default CourseListRow;
