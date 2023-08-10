@@ -1,25 +1,29 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import Header from './Header';
-import { StyleSheetTestUtils } from 'aphrodite';
+import logo from '../assets/holberton-logo.jpg';
+import { StyleSheet, css} from 'aphrodite';
 
-describe('<Header />', () => {
-  beforeEach(() => {
-    StyleSheetTestUtils.suppressStyleInjection();
+function Header() {
+  const styles = StyleSheet.create({
+    AppHeader: {
+      backgroundColor: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '20px',
+      color: '#e0354b',
+      borderBottom: '3px solid #e0354b',
+      textAlign: 'center',
+      fontFamily: 'Arial, sans-serif',
+  },
+  AppLogo: {
+    width: '200px',
+  }
   });
+    return (
+        <div className={css(styles.AppHeader)}>
+          <img src={logo} className={css(styles.AppLogo)} alt="logo" />
+          <h1>School dashboard</h1>
+        </div>
+    )
+};
 
-  afterEach(() => {
-    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-  });
-
-  it('renders without crashing', () => {
-    const wrapper = shallow(<Header />);
-    expect(wrapper.exists()).toBeTruthy();
-  });
-
-  it('renders img and h1 tags', () => {
-    const wrapper = shallow(<Header />);
-    expect(wrapper.find('img').length).toBe(1); // Verifying that there is one img tag
-    expect(wrapper.find('h1').length).toBe(1); // Verifying that there is one h1 tag
-  });
-});
+export default Header;
