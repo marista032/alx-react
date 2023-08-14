@@ -1,122 +1,108 @@
-import React from "react";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
-import Login from "../Login/Login";
-import CourseList from "../CourseList/CourseList";
-import Notifications from "../Notifications/Notifications";
-import BodySectionWithMarginBottom from "../BodySection/BodySectionWithMarginBottom";
-import BodySection from "../BodySection/BodySection";
-import { StyleSheet, css } from "aphrodite";
-import PropTypes from "prop-types";
-import { getLatestNotification } from "../utils/utils";
+import React from 'react';
+import { shallow } from 'enzyme';
+import App from './App';
+import Notifications from '../Notifications/Notifications';
+import Header from '../Header/Header';
+import Login from '../Login/Login';
+import Footer from '../Footer/Footer';
+import CourseList from '../CourseList/CourseList';
+import { StyleSheetTestUtils } from 'aphrodite';
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
+describe('<App />', () => {
 
-    this.state = {
-      displayDrawer: false,
-    }
+  beforeEach (() => {
+    StyleSheetTestUtils.suppressStyleInjection();
+  });
 
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this);
-    this.handleHideDrawer = this.handleHideDrawer.bind(this);
-  }
+  afterEach (() => {
+    StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
+  });
+  
+  it('renders without crashing', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper).not.toBeNull();
+  });
 
-  listCourses = [
-    { id: 1, name: "ES6", credit: 60 },
-    { id: 2, name: "Webpack", credit: 20 },
-    { id: 3, name: "React", credit: 40 },
-  ];
+  it('renders the Notifications component', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.find(Notifications).length).toBe(1);
+  });
 
-  listNotifications = [
-    { id: 1, type: "default", value: "New course available" },
-    { id: 2, type: "urgent", value: "New resume available" },
-    { id: 3, type: "urgent", html: getLatestNotification() },
-  ];
+  it('renders the Header component', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.find(Header).length).toBe(1);
+  });
 
-  handleKeyPress(e) {
-    if (e.ctrlKey && e.key === "h") {
-      e.preventDefault();
-      alert("Logging you out");
-      this.props.logOut();
-    }
-  }
+  it('renders the Login component', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.find(Login).length).toBe(1);
+  });
 
-  handleDisplayDrawer() {
-    this.setState({
-      displayDrawer: true,
+  it('renders the Footer component', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.find(Footer).length).toBe(1);
+  });
+
+  it('does not render the CourseList component when isLoggedIn is false', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.find(CourseList).length).toBe(0);
+  });
+
+  it('has default state of displayDrawer set to false', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.state('displayDrawer')).toBe(false);
+  })
+
+  it('updates state to true when handleDisplayDrawer is called', () => {
+    const wrapper = shallow(<App />)
+    wrapper.instance().handleDisplayDrawer();
+    expect(wrapper.state('displayDrawer')).toBe(true);
+  })
+
+  it('updates state to false when handleHideDrawer is called', () => {
+    const wrapper =shallow(<App />);
+    wrapper.setState({ displayDrawer: true });
+    wrapper.instance().handleHideDrawer();
+    expect(wrapper.state('displayDrawer')).toBe(false);
+  })
+
+  describe('when isLoggedIn is true', () => {
+    it('does not render the Login component', () => {
+      const wrapper = shallow(<App isLoggedIn={true} />);
+      expect(wrapper.find(Login).length).toBe(0);
     });
-  }
 
-  handleHideDrawer() {
-    this.setState({
-      displayDrawer: false,
-    })
-  }
-  componentDidMount() {
-    document.addEventListener("keydown", this.handleKeyPress);
-  }
+    it('renders the CourseList component', () => {
+      const wrapper = shallow(<App isLoggedIn={true} />);
+      expect(wrapper.find(CourseList).length).toBe(1);
+    });
+  });
 
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeyPress);
-  }
+  describe('when the keys control and h are pressed', () => {
+    let originalAlert;
+    let logOutMock;
 
-  render() {
+    beforeEach(() => {
+      logOutMock = jest.fn();
+      const wrapper = shallow(<App logOut={logOutMock} />);
+      originalAlert = window.alert;
+    });
 
-    return (
-      <React.Fragment>
-        <div className={css(styles.app)}>
-          <div className={css(styles.headingSection)}>
-            <Notifications 
-            listNotifications={this.listNotifications} 
-            displayDrawer = {this.state.displayDrawer}
-            handleDisplayDrawer = {this.handleDisplayDrawer}
-            handleHideDrawer = {this.handleHideDrawer} 
-            />
-            <Header />
-          </div>
-          {this.props.isLoggedIn ? (
-            <BodySectionWithMarginBottom title="Course list">
-              <CourseList listCourses={this.listCourses} />
-            </BodySectionWithMarginBottom>
-          ) : (
-            <BodySectionWithMarginBottom title="Log in to continue">
-              <Login />
-            </BodySectionWithMarginBottom>
-          )}
-          <BodySection title="News from the school">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis at tempora odio, necessitatibus repudiandae reiciendis cum nemo sed asperiores ut molestiae eaque aliquam illo ipsa
-              iste vero dolor voluptates.
-            </p>
-          </BodySection>
-          <Footer />
-        </div>
-      </React.Fragment>
-    );
-  }
-}
+    afterEach(() => {
+      window.alert = originalAlert;
+      jest.restoreAllMocks();
+    });
 
-const styles = StyleSheet.create({
-  app: {
-    height: '100vh',
-    maxWidth: '100vw',
-    position: 'relative',
-    fontFamily: 'Arial, Helvetica, sans-serif',
-  },
-})
+    it('calls the logOut function', () => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { ctrlKey: true, key: 'h' }));
+      expect(logOutMock).toHaveBeenCalled();
+    });
 
-App.defaultProps = {
-  isLoggedIn: false,
-  logOut: () => {
-    return;
-  },
-};
+    it('displays the alert message "Logging you out"', () => {
+      window.alert = jest.fn();
+      document.dispatchEvent(new KeyboardEvent('keydown', { ctrlKey: true, key: 'h' }));
+      expect(window.alert).toHaveBeenCalledWith('Logging you out');
+    });
 
-App.propTypes = {
-  isLoggedIn: PropTypes.bool,
-  logOut: PropTypes.func,
-};
-
-export default App;
+  });
+});
