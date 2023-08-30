@@ -1,30 +1,34 @@
-import * as notificationsData from '../../notifications.json';
-import { normalize, schema } from 'normalizr';
+const jsonData = require('../../dist/notifications.json')
+const schema = require('normalizr').schema;
+const normalize = require('normalizr').normalize;
 
-const user = new schema.Entity("users");
-const message = new schema.Entry(
-    "messages",
-    {
-        idAttribute: "guid"
-    });
-const notification = new schema.Entry("notifactions", {
-    author: user,
-    context: message
+
+const user = new schema.Entity('users');
+
+const message = new schema.Entity('messages', {}, {
+  idAttribute: 'guid',
 });
 
-const normalizedData = normalize(notificationsData, [notification]);
+const notification = new schema.Entity('notifications', {
+  author: user,
+  context: message
+});
 
-export default function getAllNotificationsByUser(userId) {
-    const userNotifications = normalizedData.entities.notifications;
-    const resultArray = [];
+export const normalizedData = normalize(jsonData, [notification]);
 
-    for (const notifactionId in userNotifications) {
-        const notification = userNotifications[notifactionId];
-        if (notification.author === userId) {
-            resultArray.push(notification);
-        }
+export const getAllNotificationsByUser = (userId) => {
+  // returns a list containing all 'context' objects from the normalizedData variable
+  // when the author id matches the userId parameter
+  //
+  // @userId: string
+  //
+  // returns: list containing all 'context' objects when 
+  // the author id matches the userId parameter
+  const myList = [];
+  jsonData.forEach((notification) => {
+    if (notification.author.id === userId) {
+      myList.push(notification.context);
     }
-    return resultArray;
+  })
+  return myList;
 }
-
-export { normalizedData };
